@@ -7,6 +7,41 @@ var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
+
+function getWeatherData() {
+    return {
+        locations:[
+            {
+                name: 'Портленд',
+                forecastUrl: 'http://vk.com',
+                iconUrl: 'http://icons-ak.wxug.com/i/k/cloudy.gif',
+                weather: 'Облачно',
+                temp: '+2'
+            },
+            {
+                name: 'Портленд1',
+                forecastUrl: 'http://vk.com',
+                iconUrl: 'http://icons-ak.wxug.com/i/k/cloudy.gif',
+                weather: 'Облачно',
+                temp: '+1'
+            },
+            {
+                name: 'Портленд2',
+                forecastUrl: 'http://vk.com',
+                iconUrl: 'http://icons-ak.wxug.com/i/k/cloudy.gif',
+                weather: 'Облачно',
+                temp: '+3'
+            },
+        ]
+    }
+}
+
+app.use(function (req, res, next) {
+    if(!res.locals.partials) res.locals.partials = {};
+    res.locals.partials.weatherContext = getWeatherData();
+    next();
+})
+
 app.use(function (req, res, next) {
     res.locals.showTests = app.get('env') != 'production' && req.query.test == '1';
     next();
