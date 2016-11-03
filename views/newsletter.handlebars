@@ -1,0 +1,6 @@
+<form action="/process?form=newsletter" method="post">
+    <input type="hidden" name="_csrf" value="{{csrf}}"><br>
+    <input type="text" name="name"><br>
+    <input type="email" required name="email"><br>
+    <button type="submit">Register</button>
+</form>

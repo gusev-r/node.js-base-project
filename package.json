@@ -1,7 +1,6 @@
 {
   "name": "meadowlark",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,12 +8,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "express-handlebars": "^3.0.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "grunt": "^1.0.1",
+    "grunt": "~0.4.5",
     "grunt-cafe-mocha": "^0.1.13",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-exec": "^1.0.1",
@@ -22,5 +22,14 @@
     "jshint": "^2.9.4",
     "mocha": "^3.1.2",
     "zombie": "^2.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gusev-r/node.js-base-project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gusev-r/node.js-base-project/issues"
+  },
+  "homepage": "https://github.com/gusev-r/node.js-base-project#readme",
+  "description": ""
 }

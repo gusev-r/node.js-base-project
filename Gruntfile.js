@@ -4,7 +4,7 @@ module.exports = function (grunt) {
         'grunt-cafe-mocha',
         'grunt-contrib-jshint',
         'grunt-exec',
-	'grunt-link-checker'
+	    'grunt-link-checker'
     ].forEach(function (task) {
         grunt.loadNpmTasks(task);
     });
