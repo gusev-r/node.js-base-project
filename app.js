@@ -5,9 +5,19 @@ const util = require('util');
 var app = express();
 app.set('port', process.env.PORT || 30000);
 
-var handlebars = require('express-handlebars').create({defaultLayout:'main'});
+var handlebars = require('express-handlebars').create({
+    defaultLayout:'main',
+    helpers: {
+        section: function (name, options) {
+            if(!this._sections) this._sections = {};
+            this._sections[name] = options.fn(this);
+            return null;
+        }
+    }
+});
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
+
 
 app.use(body_parser); 
 
