@@ -25,6 +25,12 @@
     <script>mocha.run();</script>
 {{/if}}
 <header><img src="/img/logo.png" alt="Лого"></header>
+{{#if flash}}
+    <div class="alert alert0-dismissible alert-{{flash.type}}">
+        <button type="button" class="close" data-dismiss="alert" arial-hidden="true">&times;</button>
+        <strong>{{flash.intro}}</strong>{{{flash.message}}}
+    </div>
+{{/if}}
 {{{body}}}
 {{{_sections.jquery}}}
 </body>

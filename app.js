@@ -9,13 +9,19 @@ const util = require('util');
 var app = express();
 app.set('port', process.env.PORT || 30000);
 
-
 app.use(cookie_parser(credentials.cookieSecret));
+
 app.use(express_session({
     resave: false,
     saveUninitialized: false,
     secret: credentials.cookieSecret
 }));
+
+app.use(function (req, res, next) {
+    res.locals.flash = req.session.flash;
+    delete req.session.flash;
+    next();
+})
 
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',
@@ -136,6 +142,28 @@ app.get('/about', function (req, res) {
     // res.type('text/paint');
     // res.send('About page');
 });
+app.post('/about/process',function (req, res) {
+    var email = req.body.email || '';
+    var body = req.body.body || '';
+    console.log(email);
+    console.log(body);
+    if(body == '' || email == ''){
+        req.session.flash = {
+            type: 'danger',
+            intro: 'Ошибка проверки формы!',
+            message: 'Заполните пустые поля'
+        };
+    }else{
+        req.session.flash = {
+            type: 'info',
+            intro: 'Сообщение отправлено',
+            message: 'Спасибо!!!'
+        };
+    }
+    return res.redirect(303, '/about');
+});
+
+
 
 app.get('/tours/hood-river', function (req, res) {
     res.render('tours/hood-river');
