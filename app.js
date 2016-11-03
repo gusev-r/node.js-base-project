@@ -72,13 +72,17 @@ app.get('/newsletter', function (req, res) {
     });
 });
 app.post('/process',function (req, res) {
-    console.log(util.inspect(req.query, {showHidden: false, depth: null}));
-    console.log(util.inspect(req.body, {showHidden: false, depth: null}));
-    console.log('form (form query): ' +req.query.form);
-    console.log('CSRF token (form hidden form field): ' +req.body._csrf);
-    console.log('Name: ' +req.body.name);
-    console.log('Email: ' +req.body.email);
-    res.redirect(303, '/thank-you');
+    if(req.xhr || req.accepts('json.html') == 'json'){
+        console.log(util.inspect(req.query, {showHidden: false, depth: null}));
+        console.log(util.inspect(req.body, {showHidden: false, depth: null}));
+        console.log('form (form query): ' +req.query.form);
+        console.log('CSRF token (form hidden form field): ' +req.body._csrf);
+        console.log('Name: ' +req.body.name);
+        console.log('Email: ' +req.body.email);
+        res.send({success: true})
+    } else{
+        res.redirect(303, '/thank-you');
+    }
 });
 app.get('/thank-you', function (req, res) {
     res.render('thank-you');
