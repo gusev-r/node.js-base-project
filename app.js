@@ -4,12 +4,19 @@ var fortune = require('./lib/fortune.js');
 var body_parser = require('body-parser').urlencoded({extended: true});
 var formidable = require('formidable');
 var cookie_parser = require('cookie-parser');
+var express_session = require('express-session');
 const util = require('util');
 var app = express();
 app.set('port', process.env.PORT || 30000);
 
 
 app.use(cookie_parser(credentials.cookieSecret));
+app.use(express_session({
+    resave: false,
+    saveUninitialized: false,
+    secret: credentials.cookieSecret
+}));
+
 var handlebars = require('express-handlebars').create({
     defaultLayout:'main',
     helpers: {
@@ -66,6 +73,7 @@ app.use(function (req, res, next) {
 });
 
 app.get('/', function (req, res) {
+    req.session.userName = 'TestUser';
     res.cookie('test','azaza');
     res.render('home');
     // res.type('text/paint');
@@ -117,8 +125,10 @@ app.get('/thank-you', function (req, res) {
 });
 
 app.get('/about', function (req, res) {
+    var test_session = req.session.userName;
     var test_cookie = req.cookies.test;
     res.render('about',{
+        'test_session': test_session,
         'test_cookie': test_cookie,
         'fortune': fortune.getFortune(),
         'pageTestScript': '/qa/tests-about.js'
