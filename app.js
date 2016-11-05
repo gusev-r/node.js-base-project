@@ -1,6 +1,4 @@
 var credentials = require('./credentials.js');
-var express = require('express');
-var fortune = require('./lib/fortune.js');
 var body_parser = require('body-parser').urlencoded({extended: true});
 var formidable = require('formidable');
 var cookie_parser = require('cookie-parser');
@@ -8,6 +6,7 @@ var express_session = require('express-session');
 var http = require('http');
 var vhost = require('vhost');
 const util = require('util');
+var express = require('express');
 var app = express();
 app.set('port', process.env.PORT || 30000);
 
@@ -17,7 +16,6 @@ app.use(vhost('admin.*', admin));
 admin.get('/', function (req, res) {
     res.render('home');
 });
-
 
 // use domains for better error handling
 app.use(function(req, res, next){
@@ -156,118 +154,23 @@ app.use(function (req, res, next) {
     if(!res.locals.partials) res.locals.partials = {};
     res.locals.partials.weatherContext = getWeatherData();
     next();
-})
+});
 
 app.use(function (req, res, next) {
     res.locals.showTests = app.get('env') != 'production' && req.query.test == '1';
     next();
 });
 
-app.get('/', function (req, res) {
-    req.session.userName = 'TestUser';
-    res.cookie('test','azaza');
-    res.render('home');
-    // res.type('text/paint');
-    // res.send('Home page');
-});
+require('./routes.js')(app);
 
-app.get('/contest/vacation-photo', function (req, res) {
-    var now = new Date();
-    res.render('contest/vacation-photo',{
-        year: now.getFullYear(),
-        month: now.getMonth()
-    });
-});
-
-app.post('/contest/vacation-photo/:year/:month', function (req, res) {
-    var form = new formidable.IncomingForm();
-    form.parse(req, function (err, fields, files) {
-        if(err){
-            return res.redirect(303, '/error');
-        }
-        console.log('received fields: ');
-        console.log(fields);
-        console.log('received files: ');
-        console.log(files);
-        res.redirect(303, '/thank-you');
-    });
-});
-
-app.get('/newsletter', function (req, res) {
-    res.render('newsletter',{
-        csrf: 'CSRF token goes here'
-    });
-});
-app.post('/process',function (req, res) {
-    if(req.xhr || req.accepts('json.html') == 'json'){
-        console.log(util.inspect(req.query, {showHidden: false, depth: null}));
-        console.log(util.inspect(req.body, {showHidden: false, depth: null}));
-        console.log('form (form query): ' +req.query.form);
-        console.log('CSRF token (form hidden form field): ' +req.body._csrf);
-        console.log('Name: ' +req.body.name);
-        console.log('Email: ' +req.body.email);
-        res.send({success: true})
-    } else{
-        res.redirect(303, '/thank-you');
-    }
-});
-app.get('/thank-you', function (req, res) {
-    res.render('thank-you');
-});
-
-app.get('/about', function (req, res) {
-    var test_session = req.session.userName;
-    var test_cookie = req.cookies.test;
-    res.render('about',{
-        'test_session': test_session,
-        'test_cookie': test_cookie,
-        'fortune': fortune.getFortune(),
-        'pageTestScript': '/qa/tests-about.js'
-    });
-    // res.type('text/paint');
-    // res.send('About page');
-});
-app.post('/about/process',function (req, res) {
-    var email = req.body.email || '';
-    var body = req.body.body || '';
-    console.log(email);
-    console.log(body);
-    if(body == '' || email == ''){
-        req.session.flash = {
-            type: 'danger',
-            intro: 'Ошибка проверки формы!',
-            message: 'Заполните пустые поля'
-        };
-    }else{
-        req.session.flash = {
-            type: 'info',
-            intro: 'Сообщение отправлено',
-            message: 'Спасибо!!!'
-        };
-    }
-    return res.redirect(303, '/about');
-});
-
-
-
-app.get('/tours/hood-river', function (req, res) {
-    res.render('tours/hood-river');
-});
-
-app.get('/tours/request-group-rate', function (req, res) {
-    res.render('tours/request-group-rate');
-});
 app.use(express.static( __dirname + '/public'));
-
 app.use(function (req, res) {
     res.status(404).render('404');
 });
-
 app.use(function (err, req, res, next) {
     console.log(err.stack);
     res.status(500).render('500');
 });
-
 
 var server;
 
