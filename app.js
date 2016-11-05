@@ -9,6 +9,19 @@ const util = require('util');
 var app = express();
 app.set('port', process.env.PORT || 30000);
 
+// logging
+switch(app.get('env')){
+    case 'development':
+        // compact, colorful dev logging
+        app.use(require('morgan')('dev'));
+        break;
+    case 'production':
+        // module 'express-logger' supports daily log rotation
+        app.use(require('express-logger')({ path: __dirname + '/log/requests.log'}));
+        break;
+}
+
+
 app.use(cookie_parser(credentials.cookieSecret));
 
 app.use(express_session({
@@ -186,5 +199,7 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(app.get('port'), function () {
-    console.log('Express run on http://localhost:' + app.get('port'));
+    console.log( 'Express started in ' + app.get('env') +
+        ' mode on http://localhost:' + app.get('port') +
+        '; press Ctrl-C to terminate.' );
 });
