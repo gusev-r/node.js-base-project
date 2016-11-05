@@ -20,7 +20,14 @@ switch(app.get('env')){
         app.use(require('express-logger')({ path: __dirname + '/log/requests.log'}));
         break;
 }
-
+// info about cluster works
+app.use(function (req, res, next) {
+    var cluster = require('cluster');
+    if(cluster.isWorker){
+        console.log('Запрос обрабатывает исполнитель номер - %d', cluster.worker.id);
+    };
+    next();
+})
 
 app.use(cookie_parser(credentials.cookieSecret));
 
@@ -198,8 +205,20 @@ app.use(function (err, req, res, next) {
     res.render('500');
 });
 
-app.listen(app.get('port'), function () {
-    console.log( 'Express started in ' + app.get('env') +
-        ' mode on http://localhost:' + app.get('port') +
-        '; press Ctrl-C to terminate.' );
-});
+
+function startServer() {
+    app.listen(app.get('port'), function () {
+        console.log( 'Express started in ' + app.get('env') +
+            ' mode on http://localhost:' + app.get('port') +
+            '; press Ctrl-C to terminate.' );
+    });
+}
+
+if(require.main === module){
+    // application run directly; start app server
+    startServer();
+} else {
+    // application imported as a module via "require": export function to create server
+    module.exports = startServer;
+}
+
