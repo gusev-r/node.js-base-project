@@ -1,7 +1,7 @@
+var main = require('./handlers/main.js');
 module.exports = function (app) {
-    app.get('/', function (req, res) {
-        res.render('home');
-    });
+    app.get('/', main.home);
+    app.get('/about', main.about);
     app.get('/contest/vacation-photo', function (req, res) {
         var now = new Date();
         res.render('contest/vacation-photo',{
@@ -42,19 +42,6 @@ module.exports = function (app) {
     });
     app.get('/thank-you', function (req, res) {
         res.render('thank-you');
-    });
-    var fortune = require('./lib/fortune.js');
-    app.get('/about', function (req, res) {
-        var test_session = req.session.userName;
-        var test_cookie = req.cookies.test;
-        res.render('about',{
-            'test_session': test_session,
-            'test_cookie': test_cookie,
-            'fortune': fortune.getFortune(),
-            'pageTestScript': '/qa/tests-about.js'
-        });
-        // res.type('text/paint');
-        // res.send('About page');
     });
     app.post('/about/process',function (req, res) {
         var email = req.body.email || '';
