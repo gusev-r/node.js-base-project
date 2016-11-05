@@ -6,9 +6,17 @@ var formidable = require('formidable');
 var cookie_parser = require('cookie-parser');
 var express_session = require('express-session');
 var http = require('http');
+var vhost = require('vhost');
 const util = require('util');
 var app = express();
 app.set('port', process.env.PORT || 30000);
+
+var admin = express.Router();
+app.use(vhost('admin.*', admin));
+
+admin.get('/', function (req, res) {
+    res.render('home');
+});
 
 
 // use domains for better error handling
