@@ -1,6 +1,5 @@
 var credentials = require('./credentials.js');
 var body_parser = require('body-parser').urlencoded({extended: true});
-var formidable = require('formidable');
 var cookie_parser = require('cookie-parser');
 var express_session = require('express-session');
 var http = require('http');
@@ -8,32 +7,44 @@ var vhost = require('vhost');
 const util = require('util');
 var express = require('express');
 var app = express();
+var handlebars = require('express-handlebars').create({
+    defaultLayout: 'main',
+    helpers: {
+        section: function (name, options) {
+            if (!this._sections) this._sections = {};
+            this._sections[name] = options.fn(this);
+            return null;
+        }
+    }
+});
+app.engine('handlebars', handlebars.engine);
+app.set('view engine', 'handlebars');
+
 app.set('port', process.env.PORT || 30000);
 
 var admin = express.Router();
 app.use(vhost('admin.*', admin));
-
 admin.get('/', function (req, res) {
     res.render('home');
 });
 
 // use domains for better error handling
-app.use(function(req, res, next){
+app.use(function (req, res, next) {
     // create a domain for this request
     var domain = require('domain').create();
     // handle errors on this domain
-    domain.on('error', function(err){
+    domain.on('error', function (err) {
         console.error('ПЕРЕХВАТ ОШИБКИ ДОМЕНА\n', err.stack);
         try {
             // failsafe shutdown in 5 seconds
-            setTimeout(function(){
+            setTimeout(function () {
                 console.error('Отказобезобасный сотанов');
                 process.exit(1);
             }, 5000);
 
             // disconnect from the cluster
             var worker = require('cluster').worker;
-            if(worker) worker.disconnect();
+            if (worker) worker.disconnect();
 
             // stop taking new requests
             server.close();
@@ -41,7 +52,7 @@ app.use(function(req, res, next){
             try {
                 // attempt to use Express error route
                 next(err);
-            } catch(error){
+            } catch (error) {
                 // if Express error route failed, try
                 // plain Node response
                 console.error('Сбой механизмоа обработки ошибок Express.\n', error.stack);
@@ -49,7 +60,7 @@ app.use(function(req, res, next){
                 res.setHeader('content-type', 'text/plain');
                 res.end('Server error.');
             }
-        } catch(error){
+        } catch (error) {
             console.error('Unable to send 500 response.\n', error.stack);
         }
     });
@@ -63,33 +74,23 @@ app.use(function(req, res, next){
 });
 
 // logging
-switch(app.get('env')){
+switch (app.get('env')) {
     case 'development':
         // compact, colorful dev logging
         app.use(require('morgan')('dev'));
         break;
     case 'production':
         // module 'express-logger' supports daily log rotation
-        app.use(require('express-logger')({ path: __dirname + '/log/requests.log'}));
+        app.use(require('express-logger')({path: __dirname + '/log/requests.log'}));
         break;
 }
 // info about cluster works
 app.use(function (req, res, next) {
     var cluster = require('cluster');
-    if(cluster.isWorker){
+    if (cluster.isWorker) {
         console.log('Запрос обрабатывает исполнитель номер - %d', cluster.worker.id);
-    };
+    }
     next();
-})
-
-app.get('/fail', function (req, res) {
-    throw new Error('Нет!');
-})
-
-app.get('/epic-fail', function (req, res) {
-    process.nextTick(function () {
-        throw new Error('Бабах!');
-    })
 })
 
 app.use(cookie_parser(credentials.cookieSecret));
@@ -106,25 +107,11 @@ app.use(function (req, res, next) {
     next();
 })
 
-var handlebars = require('express-handlebars').create({
-    defaultLayout:'main',
-    helpers: {
-        section: function (name, options) {
-            if(!this._sections) this._sections = {};
-            this._sections[name] = options.fn(this);
-            return null;
-        }
-    }
-});
-app.engine('handlebars', handlebars.engine);
-app.set('view engine', 'handlebars');
-
-
 app.use(body_parser);
 
 function getWeatherData() {
     return {
-        locations:[
+        locations: [
             {
                 name: 'Портленд',
                 forecastUrl: 'http://vk.com',
@@ -151,7 +138,7 @@ function getWeatherData() {
 }
 
 app.use(function (req, res, next) {
-    if(!res.locals.partials) res.locals.partials = {};
+    if (!res.locals.partials) res.locals.partials = {};
     res.locals.partials.weatherContext = getWeatherData();
     next();
 });
@@ -163,7 +150,7 @@ app.use(function (req, res, next) {
 
 require('./routes.js')(app);
 
-app.use(express.static( __dirname + '/public'));
+app.use(express.static(__dirname + '/public'));
 app.use(function (req, res) {
     res.status(404).render('404');
 });
@@ -175,14 +162,14 @@ app.use(function (err, req, res, next) {
 var server;
 
 function startServer() {
-    server = http.createServer(app).listen(app.get('port'), function(){
-        console.log( 'Express started in ' + app.get('env') +
+    server = http.createServer(app).listen(app.get('port'), function () {
+        console.log('Express started in ' + app.get('env') +
             ' mode on http://localhost:' + app.get('port') +
-            '; press Ctrl-C to terminate.' );
+            '; press Ctrl-C to terminate.');
     });
 }
 
-if(require.main === module){
+if (require.main === module) {
     // application run directly; start app server
     startServer();
 } else {

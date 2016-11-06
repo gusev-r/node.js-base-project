@@ -1,72 +1,21 @@
 var main = require('./handlers/main.js');
+var contest = require('./handlers/contest.js');
+var tours = require('./handlers/tours.js');
+var sample = require('./handlers/sample.js');
 module.exports = function (app) {
     app.get('/', main.home);
     app.get('/about', main.about);
-    app.get('/contest/vacation-photo', function (req, res) {
-        var now = new Date();
-        res.render('contest/vacation-photo',{
-            year: now.getFullYear(),
-            month: now.getMonth()
-        });
-    });
-    app.post('/contest/vacation-photo/:year/:month', function (req, res) {
-        var form = new formidable.IncomingForm();
-        form.parse(req, function (err, fields, files) {
-            if(err){
-                return res.redirect(303, '/error');
-            }
-            console.log('received fields: ');
-            console.log(fields);
-            console.log('received files: ');
-            console.log(files);
-            res.redirect(303, '/thank-you');
-        });
-    });
-    app.get('/newsletter', function (req, res) {
-        res.render('newsletter',{
-            csrf: 'CSRF token goes here'
-        });
-    });
-    app.post('/process',function (req, res) {
-        if(req.xhr || req.accepts('json.html') == 'json'){
-            console.log(util.inspect(req.query, {showHidden: false, depth: null}));
-            console.log(util.inspect(req.body, {showHidden: false, depth: null}));
-            console.log('form (form query): ' +req.query.form);
-            console.log('CSRF token (form hidden form field): ' +req.body._csrf);
-            console.log('Name: ' +req.body.name);
-            console.log('Email: ' +req.body.email);
-            res.send({success: true})
-        } else{
-            res.redirect(303, '/thank-you');
-        }
-    });
-    app.get('/thank-you', function (req, res) {
-        res.render('thank-you');
-    });
-    app.post('/about/process',function (req, res) {
-        var email = req.body.email || '';
-        var body = req.body.body || '';
-        console.log(email);
-        console.log(body);
-        if(body == '' || email == ''){
-            req.session.flash = {
-                type: 'danger',
-                intro: 'Ошибка проверки формы!',
-                message: 'Заполните пустые поля'
-            };
-        }else{
-            req.session.flash = {
-                type: 'info',
-                intro: 'Сообщение отправлено',
-                message: 'Спасибо!!!'
-            };
-        }
-        return res.redirect(303, '/about');
-    });
-    app.get('/tours/hood-river', function (req, res) {
-        res.render('tours/hood-river');
-    });
-    app.get('/tours/request-group-rate', function (req, res) {
-        res.render('tours/request-group-rate');
-    });
+    app.post('/about/process', main.aboutProcessPost);
+    app.get('/newsletter', main.newsletter);
+    app.post('/process', main.processPost);
+    app.get('/thank-you', main.thankYou);
+
+    app.get('/contest/vacation-photo', contest.vacationPhoto);
+    app.post('/contest/vacation-photo/:year/:month', contest.vacationPhotoProcessPost);
+
+    app.get('/tours/hood-river', tours.HoodRiver);
+    app.get('/tours/request-group-rate', tours.requestGroupRate);
+
+    app.get('/fail', sample.fail);
+    app.get('/epic-fail', sample.epicFail);
 };

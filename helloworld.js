@@ -3,20 +3,20 @@ var http = require('http'),
 console.log('test');
 
 function serverStaticFile(res, path, contentType, responseCode) {
-    if(!responseCode) responseCode = 200;
+    if (!responseCode) responseCode = 200;
     fs.readFile(__dirname + path, function (err, data) {
-        if(err) {
+        if (err) {
             res.writeHead(500, {'Content-Type': 'text/plan'});
             res.end('500 - Internal Error');
-        } else{
+        } else {
             res.writeHead(responseCode, {'Content-Type': contentType});
             res.end(data);
         }
     })
 }
 http.createServer(function (req, res) {
-    var path = req.url.replace(/\/?(?:\?.*)?$/,'').toLocaleLowerCase();
-    switch (path){
+    var path = req.url.replace(/\/?(?:\?.*)?$/, '').toLocaleLowerCase();
+    switch (path) {
         case '':
             res.writeHead(200, {'Content-Type': 'Text/pain'});
             serverStaticFile(res, '/public/home.html', 'text/html');

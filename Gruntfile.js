@@ -1,16 +1,15 @@
 module.exports = function (grunt) {
-
     [
         'grunt-cafe-mocha',
         'grunt-contrib-jshint',
         'grunt-exec',
-	    'grunt-link-checker'
+        'grunt-link-checker'
     ].forEach(function (task) {
         grunt.loadNpmTasks(task);
     });
 
     grunt.initConfig({
-        cafemocha:{
+        cafemocha: {
             all: {
                 src: 'qa/test-*.js',
                 options: {
@@ -25,14 +24,14 @@ module.exports = function (grunt) {
                 'lib/**/*.js'
             ]
         },
-	linkChecker: {
-	  dev: {
-	    site: 'localhost',
-	    options: {
-	      initialPort: 30000
-	    }
-	  }
-	}
+        linkChecker: {
+            dev: {
+                site: 'localhost',
+                options: {
+                    initialPort: 30000
+                }
+            }
+        }
     });
-    grunt.registerTask('default',['cafemocha', 'jshint', 'linkChecker'])
+    grunt.registerTask('default', ['cafemocha', 'jshint', 'linkChecker'])
 }
