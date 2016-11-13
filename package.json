@@ -15,9 +15,10 @@
     "express-logger": "0.0.3",
     "express-session": "^1.14.2",
     "formidable": "^1.0.17",
+    "grunt-cli": "~1.2.0",
     "morgan": "^1.7.0",
-    "vhost": "^3.0.2",
-    "grunt-cli": "~1.2.0"
+    "underscore": "^1.8.3",
+    "vhost": "^3.0.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",

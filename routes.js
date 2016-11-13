@@ -2,6 +2,8 @@ var main = require('./handlers/main.js');
 var contest = require('./handlers/contest.js');
 var tours = require('./handlers/tours.js');
 var sample = require('./handlers/sample.js');
+var customerController = require('./controllers/customer');
+var orderController = require('./controllers/order');
 module.exports = function (app) {
     app.get('/', main.home);
     app.get('/about', main.about);
@@ -15,7 +17,9 @@ module.exports = function (app) {
 
     app.get('/tours/hood-river', tours.HoodRiver);
     app.get('/tours/request-group-rate', tours.requestGroupRate);
-
     app.get('/fail', sample.fail);
     app.get('/epic-fail', sample.epicFail);
+
+    customerController.registerRoutes(app);
+    orderController.registerRoutes(app);
 };

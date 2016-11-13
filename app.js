@@ -7,7 +7,10 @@ var vhost = require('vhost');
 const util = require('util');
 var express = require('express');
 var app = express();
+
+// template engine
 var handlebars = require('express-handlebars').create({
+    extname: '.hbs',
     defaultLayout: 'main',
     helpers: {
         section: function (name, options) {
@@ -17,8 +20,9 @@ var handlebars = require('express-handlebars').create({
         }
     }
 });
-app.engine('handlebars', handlebars.engine);
-app.set('view engine', 'handlebars');
+app.engine('.hbs', handlebars.engine);
+app.set('view engine', '.hbs');
+
 
 app.set('port', process.env.PORT || 30000);
 
@@ -147,6 +151,25 @@ app.use(function (req, res, next) {
     res.locals.showTests = app.get('env') != 'production' && req.query.test == '1';
     next();
 });
+
+
+// database configuration
+var mongoose = require('mongoose');
+var options = {
+    server: {
+        socketOptions: {keepAlive: 1}
+    }
+};
+switch (app.get('env')) {
+    case 'development':
+        mongoose.connect(credentials.mongo.development.connectionString, options);
+        break;
+    case 'production':
+        mongoose.connect(credentials.mongo.production.connectionString, options);
+        break;
+    default:
+        throw new Error('Unknown execution environment: ' + app.get('env'));
+}
 
 require('./routes.js')(app);
 
